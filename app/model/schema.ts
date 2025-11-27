@@ -1,0 +1,43 @@
+import { appSchema, tableSchema } from "@nozbe/watermelondb";
+
+export default appSchema({
+  version: 1,
+  tables: [
+    tableSchema({
+      name: "work_orders",
+      columns: [
+        { name: "client_work_order_id", type: "number" },
+        { name: "work_order_number", type: "string" },
+        { name: "description", type: "string" },
+        { name: "category_id", type: "number" },
+        { name: "category_name", type: "string" },
+        { name: "subcategory_id", type: "number" },
+        { name: "subcategory_name", type: "string" },
+        { name: "location_name", type: "string" },
+        { name: "client_id", type: "number" },
+        { name: "client_name", type: "string" },
+        { name: "asset_description", type: "string" },
+        { name: "asset_id", type: "number" },
+        { name: "asset_number", type: "string" },
+        { name: "problem_type_id", type: "number" },
+        { name: "problem_type_name", type: "string" },
+        { name: "reported_date", type: "string" },
+        { name: "site_code", type: "string" },
+        { name: "site_id", type: "number" },
+        { name: "site_name", type: "string" },
+        { name: "updated_date", type: "string" },
+        { name: "work_order_status_group_id", type: "number" },
+        { name: "work_order_status_group_name", type: "string" },
+        { name: "work_order_status_id", type: "number" },
+        { name: "work_order_status_name", type: "string" },
+        { name: "work_order_type_id", type: "number" },
+        { name: "work_order_type_name", type: "string" },
+        { name: "action_count", type: "number" },
+        { name: "visit_count", type: "number" },
+        { name: "related_work_order_count", type: "number" },
+        { name: "documents_count", type: "number" },
+        { name: "comment_count", type: "number" },
+      ],
+    }),
+  ],
+});
