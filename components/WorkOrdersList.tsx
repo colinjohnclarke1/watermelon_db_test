@@ -1,26 +1,29 @@
-import database from "@/app/db";
 import { withObservables } from "@nozbe/watermelondb/react";
+
+import database from "@/app/db";
 import React from "react";
 import {
   FlatList,
   StyleSheet,
   Text,
+  TextStyle,
   TouchableOpacity,
   View,
+  ViewStyle,
 } from "react-native";
 
-// Define the shape of a WorkOrder
+// Define the WorkOrder shape
 export interface WorkOrder {
   id: string;
   workOrderNumber: string;
   description: string;
   categoryName: string;
+  subcategoryName: string; // Add this
   locationName: string;
   clientName: string;
   workOrderStatusName: string;
   actionCount: number;
   visitCount: number;
-  // Add more fields if needed
 }
 
 // Props for WorkOrderCard
@@ -30,104 +33,158 @@ interface WorkOrderCardProps {
   onDelete: (id: string) => void;
 }
 
-// WorkOrderCard now triggers the modal handlers
+// WorkOrderCard component
 const WorkOrderCard: React.FC<WorkOrderCardProps> = ({
   item,
   onEdit,
   onDelete,
+}) => {
+  return (
+    <TouchableOpacity style={styles.card}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.workOrderNumber}>{item.workOrderNumber}</Text>
+        <View style={styles.statusBadge}>
+          <Text style={styles.statusText}>{item.workOrderStatusName}</Text>
+        </View>
+      </View>
+
+      <Text style={styles.description} numberOfLines={2}>
+        {item.description}
+      </Text>
+
+      <InfoRow label="Category:" value={item.categoryName} />
+      <InfoRow label="Location:" value={item.locationName} />
+      <InfoRow label="Client:" value={item.clientName} />
+
+      <View style={styles.countsRow}>
+        <CountBadge label="Actions" value={item.actionCount} />
+        <CountBadge label="Visits" value={item.visitCount} />
+      </View>
+
+      <View style={styles.cardActions}>
+        <ActionButton
+          label="Edit"
+          onPress={() => onEdit(item)}
+          style={styles.editButton}
+        />
+        <ActionButton
+          label="Delete"
+          onPress={() => onDelete(item.id)}
+          style={styles.deleteButton}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+// Reusable InfoRow
+interface InfoRowProps {
+  label: string;
+  value: string | number;
+}
+const InfoRow: React.FC<InfoRowProps> = ({ label, value }) => (
+  <View style={styles.infoRow}>
+    <Text style={styles.label}>{label}</Text>
+    <Text style={styles.value}>{value}</Text>
+  </View>
+);
+
+// Reusable CountBadge
+interface CountBadgeProps {
+  label: string;
+  value: number;
+}
+const CountBadge: React.FC<CountBadgeProps> = ({ label, value }) => (
+  <View style={styles.countBadge}>
+    <Text style={styles.countLabel}>{label}</Text>
+    <Text style={styles.countValue}>{value}</Text>
+  </View>
+);
+
+// Reusable ActionButton
+interface ActionButtonProps {
+  label: string;
+  onPress: () => void;
+  style?: ViewStyle;
+}
+const ActionButton: React.FC<ActionButtonProps> = ({
+  label,
+  onPress,
+  style,
 }) => (
-  <TouchableOpacity style={styles.card}>
-    <View style={styles.cardHeader}>
-      <Text style={styles.workOrderNumber}>{item.workOrderNumber}</Text>
-      <View style={styles.statusBadge}>
-        <Text style={styles.statusText}>{item.workOrderStatusName}</Text>
-      </View>
-    </View>
-
-    <Text style={styles.description} numberOfLines={2}>
-      {item.description}
-    </Text>
-
-    <View style={styles.infoRow}>
-      <Text style={styles.label}>Category:</Text>
-      <Text style={styles.value}>{item.categoryName}</Text>
-    </View>
-
-    <View style={styles.infoRow}>
-      <Text style={styles.label}>Location:</Text>
-      <Text style={styles.value}>{item.locationName}</Text>
-    </View>
-
-    <View style={styles.infoRow}>
-      <Text style={styles.label}>Client:</Text>
-      <Text style={styles.value}>{item.clientName}</Text>
-    </View>
-
-    <View style={styles.countsRow}>
-      <View style={styles.countBadge}>
-        <Text style={styles.countLabel}>Actions</Text>
-        <Text style={styles.countValue}>{item.actionCount}</Text>
-      </View>
-      <View style={styles.countBadge}>
-        <Text style={styles.countLabel}>Visits</Text>
-        <Text style={styles.countValue}>{item.visitCount}</Text>
-      </View>
-    </View>
-
-    <View style={styles.cardActions}>
-      <TouchableOpacity
-        style={[styles.actionButton, styles.editButton]}
-        onPress={() => onEdit(item)}
-      >
-        <Text style={styles.actionButtonText}>Edit</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.actionButton, styles.deleteButton]}
-        onPress={() => onDelete(item.id)}
-      >
-        <Text style={styles.actionButtonText}>Delete</Text>
-      </TouchableOpacity>
-    </View>
+  <TouchableOpacity style={[styles.actionButton, style]} onPress={onPress}>
+    <Text style={styles.actionButtonText}>{label}</Text>
   </TouchableOpacity>
 );
 
+// WorkOrdersList component
 interface WorkOrdersListProps {
   workOrders: WorkOrder[];
-  handleUpdate: (item: WorkOrder) => void; // opens modal in edit mode
-  handleDelete: (id: string) => void; // triggers delete
+  handleUpdate: (item: WorkOrder) => void;
+  handleDelete: (id: string) => void;
 }
 
-// Main list component
 const WorkOrdersList: React.FC<WorkOrdersListProps> = ({
   workOrders,
   handleUpdate,
   handleDelete,
-}) => {
-  return (
-    <FlatList
-      data={workOrders}
-      renderItem={({ item }) => (
-        <WorkOrderCard
-          item={item}
-          onEdit={handleUpdate}
-          onDelete={handleDelete}
-        />
-      )}
-      keyExtractor={(item) => item.id}
-      contentContainerStyle={{ padding: 16 }}
-    />
-  );
-};
+}) => (
+  <FlatList
+    data={workOrders}
+    renderItem={({ item }) => (
+      <WorkOrderCard
+        item={item}
+        onEdit={handleUpdate}
+        onDelete={handleDelete}
+      />
+    )}
+    keyExtractor={(item) => item.id}
+    contentContainerStyle={{ padding: 16 }}
+  />
+);
 
-// Wrap with observables
-const enhance = withObservables([""], () => ({
-  workOrders: database.get("work_orders").query().observe(),
+// Observables enhancer
+
+const enhance = withObservables([], () => ({
+  workOrders: database
+    .get("work_orders")
+    .query()
+    .observeWithColumns([
+      "work_order_number",
+      "description",
+      "category_name",
+      "subcategory_name",
+      "location_name",
+      "client_name",
+      "work_order_status_name",
+    ]),
 }));
 
 export default enhance(WorkOrdersList);
 
-// Reuse your styles
-const styles = StyleSheet.create({
+// Styles
+interface Styles {
+  card: ViewStyle;
+  cardHeader: ViewStyle;
+  workOrderNumber: TextStyle;
+  statusBadge: ViewStyle;
+  statusText: TextStyle;
+  description: TextStyle;
+  infoRow: ViewStyle;
+  label: TextStyle;
+  value: TextStyle;
+  countsRow: ViewStyle;
+  countBadge: ViewStyle;
+  countLabel: TextStyle;
+  countValue: TextStyle;
+  cardActions: ViewStyle;
+  actionButton: ViewStyle;
+  editButton: ViewStyle;
+  deleteButton: ViewStyle;
+  actionButtonText: TextStyle;
+}
+
+const styles = StyleSheet.create<Styles>({
   card: {
     backgroundColor: "#fff",
     borderRadius: 12,

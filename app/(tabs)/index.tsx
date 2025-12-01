@@ -10,6 +10,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import ResetDB from "@/components/ResetDB";
+import TriggerSync from "@/components/TriggerSync";
 import WorkOrdersList, { WorkOrder } from "@/components/WorkOrdersList";
 import database from "../db";
 
@@ -20,6 +22,10 @@ export default function WorkOrdersScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMode, setModalMode] = useState<"view" | "create" | "edit">(
     "view"
+  );
+
+  const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<string | null>(
+    null
   );
 
   // Form state
@@ -42,7 +48,7 @@ export default function WorkOrdersScreen() {
   };
 
   const openEditModal = (workOrder: WorkOrder) => {
-    setSelectedWorkOrder(workOrder);
+    setSelectedWorkOrderId(workOrder.id); // Only store ID
     setFormData({
       workOrderNumber: workOrder.workOrderNumber,
       description: workOrder.description,
@@ -67,6 +73,7 @@ export default function WorkOrdersScreen() {
       workOrderStatusName: "",
     });
     setSelectedWorkOrder(null);
+    setSelectedWorkOrderId(null);
   };
 
   // --- CRUD operations ---
@@ -128,14 +135,39 @@ export default function WorkOrdersScreen() {
     openEditModal(workOrder);
   };
 
-  const handleSaveUpdate = async () => {
-    if (!selectedWorkOrder) return;
+  // const handleSaveUpdate = async () => {
+  //   if (!selectedWorkOrder) return;
 
-    console.log(formData);
+  //   try {
+  //     await database.write(async () => {
+  //       await selectedWorkOrder.update((record: any) => {
+  //         record.workOrderNumber = formData.workOrderNumber;
+  //         record.description = formData.description;
+  //         record.categoryName = formData.categoryName;
+  //         record.subcategoryName = formData.subcategoryName;
+  //         record.locationName = formData.locationName;
+  //         record.clientName = formData.clientName;
+  //         record.workOrderStatusName = formData.workOrderStatusName;
+  //         record.updatedDate = new Date().toISOString();
+  //       });
+  //     });
+
+  //     setIsModalVisible(false);
+  //     resetForm();
+  //   } catch (error) {
+  //     console.error("Error updating work order:", error);
+  //   }
+  // };
+
+  const handleSaveUpdate = async () => {
+    if (!selectedWorkOrderId) return;
 
     try {
       await database.write(async () => {
-        await selectedWorkOrder.update((record: any) => {
+        const workOrder = await database
+          .get("work_orders")
+          .find(selectedWorkOrderId);
+        await workOrder.update((record: any) => {
           record.workOrderNumber = formData.workOrderNumber;
           record.description = formData.description;
           record.categoryName = formData.categoryName;
@@ -144,14 +176,6 @@ export default function WorkOrdersScreen() {
           record.clientName = formData.clientName;
           record.workOrderStatusName = formData.workOrderStatusName;
           record.updatedDate = new Date().toISOString();
-        });
-
-        await selectedWorkOrder.update((record: any) => {
-          console.log("Record keys:", Object.keys(record));
-          console.log("Record _raw:", record._raw);
-
-          record.workOrderNumber = formData.workOrderNumber;
-          // ... rest of updates
         });
       });
 
@@ -205,6 +229,8 @@ export default function WorkOrdersScreen() {
 
       {/* Pass modal handlers to the list */}
       <WorkOrdersList handleUpdate={handleUpdate} handleDelete={handleDelete} />
+      <TriggerSync />
+      <ResetDB />
 
       <Modal
         visible={isModalVisible}
