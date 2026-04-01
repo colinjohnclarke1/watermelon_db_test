@@ -16,16 +16,16 @@ import WorkOrdersList, { WorkOrder } from "@/components/WorkOrdersList";
 import database from "../db";
 
 export default function WorkOrdersScreen() {
-  const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(
-    null
-  );
+  const [selectedWorkOrder, setSelectedWorkOrder] = useState<
+    WorkOrder | null | undefined
+  >(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMode, setModalMode] = useState<"view" | "create" | "edit">(
-    "view"
+    "view",
   );
 
   const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<string | null>(
-    null
+    null,
   );
 
   // Form state
@@ -37,6 +37,7 @@ export default function WorkOrdersScreen() {
     locationName: "",
     clientName: "",
     workOrderStatusName: "",
+    priority: "",
   });
 
   // --- Modal handlers ---
@@ -57,6 +58,7 @@ export default function WorkOrdersScreen() {
       locationName: workOrder.locationName,
       clientName: workOrder.clientName,
       workOrderStatusName: workOrder.workOrderStatusName,
+      priority: workOrder.priority,
     });
     setModalMode("edit");
     setIsModalVisible(true);
@@ -71,6 +73,7 @@ export default function WorkOrdersScreen() {
       locationName: "",
       clientName: "",
       workOrderStatusName: "",
+      priority: "",
     });
     setSelectedWorkOrder(null);
     setSelectedWorkOrderId(null);
@@ -78,14 +81,14 @@ export default function WorkOrdersScreen() {
 
   // --- CRUD operations ---
 
+  /// add id
+
+  //
+
   const handleCreate = async () => {
     try {
       await database.write(async () => {
         const workOrderCollection = database.get("work_orders");
-        console.log(
-          "🚀 ~ handleCreate ~ workOrderCollection:",
-          workOrderCollection
-        );
 
         await workOrderCollection.create((wo: any) => {
           wo.workOrderNumber = formData.workOrderNumber;
@@ -95,6 +98,7 @@ export default function WorkOrdersScreen() {
           wo.locationName = formData.locationName;
           wo.clientName = formData.clientName;
           wo.workOrderStatusName = formData.workOrderStatusName;
+          wo.priority = formData.priority;
 
           // Default required fields
           wo.clientWorkOrderID = Date.now();
@@ -135,30 +139,6 @@ export default function WorkOrdersScreen() {
     openEditModal(workOrder);
   };
 
-  // const handleSaveUpdate = async () => {
-  //   if (!selectedWorkOrder) return;
-
-  //   try {
-  //     await database.write(async () => {
-  //       await selectedWorkOrder.update((record: any) => {
-  //         record.workOrderNumber = formData.workOrderNumber;
-  //         record.description = formData.description;
-  //         record.categoryName = formData.categoryName;
-  //         record.subcategoryName = formData.subcategoryName;
-  //         record.locationName = formData.locationName;
-  //         record.clientName = formData.clientName;
-  //         record.workOrderStatusName = formData.workOrderStatusName;
-  //         record.updatedDate = new Date().toISOString();
-  //       });
-  //     });
-
-  //     setIsModalVisible(false);
-  //     resetForm();
-  //   } catch (error) {
-  //     console.error("Error updating work order:", error);
-  //   }
-  // };
-
   const handleSaveUpdate = async () => {
     if (!selectedWorkOrderId) return;
 
@@ -175,6 +155,7 @@ export default function WorkOrdersScreen() {
           record.locationName = formData.locationName;
           record.clientName = formData.clientName;
           record.workOrderStatusName = formData.workOrderStatusName;
+          record.priority = formData.priority;
           record.updatedDate = new Date().toISOString();
         });
       });
@@ -203,7 +184,7 @@ export default function WorkOrdersScreen() {
   const renderFormField = (
     label: string,
     field: keyof typeof formData,
-    multiline = false
+    multiline = false,
   ) => (
     <View style={styles.formField}>
       <Text style={styles.formLabel}>{label}</Text>
@@ -229,6 +210,7 @@ export default function WorkOrdersScreen() {
 
       {/* Pass modal handlers to the list */}
       <WorkOrdersList handleUpdate={handleUpdate} handleDelete={handleDelete} />
+
       <TriggerSync />
       <ResetDB />
 
@@ -245,8 +227,8 @@ export default function WorkOrdersScreen() {
                 {modalMode === "view"
                   ? "Work Order Details"
                   : modalMode === "create"
-                  ? "Create Work Order"
-                  : "Edit Work Order"}
+                    ? "Create Work Order"
+                    : "Edit Work Order"}
               </Text>
               <TouchableOpacity onPress={() => setIsModalVisible(false)}>
                 <Text style={styles.closeButton}>✕</Text>
@@ -263,6 +245,7 @@ export default function WorkOrdersScreen() {
                   {renderFormField("Location", "locationName")}
                   {renderFormField("Client", "clientName")}
                   {renderFormField("Status", "workOrderStatusName")}
+                  {renderFormField("Priority", "priority")}
 
                   <View style={styles.modalActions}>
                     <TouchableOpacity
@@ -282,32 +265,6 @@ export default function WorkOrdersScreen() {
                       </Text>
                     </TouchableOpacity>
                   </View>
-                </>
-              )}
-
-              {modalMode === "view" && selectedWorkOrder && (
-                <>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Work Order Number:</Text>
-                    <Text style={styles.detailValue}>
-                      {selectedWorkOrder.workOrderNumber}
-                    </Text>
-                  </View>
-                  <View style={styles.detailRow}>
-                    <Text style={styles.detailLabel}>Description:</Text>
-                    <Text style={styles.detailValue}>
-                      {selectedWorkOrder.description}
-                    </Text>
-                  </View>
-                  {/* Add other details here similarly */}
-                  <TouchableOpacity
-                    style={styles.modalEditButton}
-                    onPress={() => openEditModal(selectedWorkOrder)}
-                  >
-                    <Text style={styles.modalEditButtonText}>
-                      Edit Work Order
-                    </Text>
-                  </TouchableOpacity>
                 </>
               )}
             </ScrollView>

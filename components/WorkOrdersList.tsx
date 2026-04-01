@@ -12,118 +12,6 @@ import {
   ViewStyle,
 } from "react-native";
 
-// Define the WorkOrder shape
-export interface WorkOrder {
-  id: string;
-  workOrderNumber: string;
-  description: string;
-  categoryName: string;
-  subcategoryName: string; // Add this
-  locationName: string;
-  clientName: string;
-  workOrderStatusName: string;
-  actionCount: number;
-  visitCount: number;
-}
-
-// Props for WorkOrderCard
-interface WorkOrderCardProps {
-  item: WorkOrder;
-  onEdit: (item: WorkOrder) => void;
-  onDelete: (id: string) => void;
-}
-
-// WorkOrderCard component
-const WorkOrderCard: React.FC<WorkOrderCardProps> = ({
-  item,
-  onEdit,
-  onDelete,
-}) => {
-  return (
-    <TouchableOpacity style={styles.card}>
-      <View style={styles.cardHeader}>
-        <Text style={styles.workOrderNumber}>{item.workOrderNumber}</Text>
-        <View style={styles.statusBadge}>
-          <Text style={styles.statusText}>{item.workOrderStatusName}</Text>
-        </View>
-      </View>
-
-      <Text style={styles.description} numberOfLines={2}>
-        {item.description}
-      </Text>
-
-      <InfoRow label="Category:" value={item.categoryName} />
-      <InfoRow label="Location:" value={item.locationName} />
-      <InfoRow label="Client:" value={item.clientName} />
-
-      <View style={styles.countsRow}>
-        <CountBadge label="Actions" value={item.actionCount} />
-        <CountBadge label="Visits" value={item.visitCount} />
-      </View>
-
-      <View style={styles.cardActions}>
-        <ActionButton
-          label="Edit"
-          onPress={() => onEdit(item)}
-          style={styles.editButton}
-        />
-        <ActionButton
-          label="Delete"
-          onPress={() => onDelete(item.id)}
-          style={styles.deleteButton}
-        />
-      </View>
-    </TouchableOpacity>
-  );
-};
-
-// Reusable InfoRow
-interface InfoRowProps {
-  label: string;
-  value: string | number;
-}
-const InfoRow: React.FC<InfoRowProps> = ({ label, value }) => (
-  <View style={styles.infoRow}>
-    <Text style={styles.label}>{label}</Text>
-    <Text style={styles.value}>{value}</Text>
-  </View>
-);
-
-// Reusable CountBadge
-interface CountBadgeProps {
-  label: string;
-  value: number;
-}
-const CountBadge: React.FC<CountBadgeProps> = ({ label, value }) => (
-  <View style={styles.countBadge}>
-    <Text style={styles.countLabel}>{label}</Text>
-    <Text style={styles.countValue}>{value}</Text>
-  </View>
-);
-
-// Reusable ActionButton
-interface ActionButtonProps {
-  label: string;
-  onPress: () => void;
-  style?: ViewStyle;
-}
-const ActionButton: React.FC<ActionButtonProps> = ({
-  label,
-  onPress,
-  style,
-}) => (
-  <TouchableOpacity style={[styles.actionButton, style]} onPress={onPress}>
-    <Text style={styles.actionButtonText}>{label}</Text>
-  </TouchableOpacity>
-);
-
-// WorkOrdersList component
-interface WorkOrdersListProps {
-  workOrders: WorkOrder[];
-  handleUpdate: (item: WorkOrder) => void;
-  handleDelete: (id: string) => void;
-}
-
 const WorkOrdersList: React.FC<WorkOrdersListProps> = ({
   workOrders,
   handleUpdate,
@@ -240,3 +128,120 @@ const styles = StyleSheet.create<Styles>({
   deleteButton: { backgroundColor: "#F44336" },
   actionButtonText: { color: "#fff", fontSize: 14, fontWeight: "600" },
 });
+
+// Define the WorkOrder shape
+export interface WorkOrder {
+  id: string;
+  workOrderNumber: string;
+  description: string;
+  categoryName: string;
+  subcategoryName: string; // Add this
+  locationName: string;
+  clientName: string;
+  workOrderStatusName: string;
+  actionCount: number;
+  visitCount: number;
+  priority: string;
+}
+
+// Props for WorkOrderCard
+interface WorkOrderCardProps {
+  item: WorkOrder;
+  onEdit: (item: WorkOrder) => void;
+  onDelete: (id: string) => void;
+}
+
+// WorkOrderCard component
+const WorkOrderCard: React.FC<WorkOrderCardProps> = ({
+  item,
+  onEdit,
+  onDelete,
+}) => {
+  return (
+    <TouchableOpacity style={styles.card}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.workOrderNumber}>{item.workOrderNumber}</Text>
+        <View style={styles.statusBadge}>
+          <Text style={styles.statusText}>{item.workOrderStatusName}</Text>
+        </View>
+      </View>
+
+      <Text style={styles.description} numberOfLines={2}>
+        {item.description}
+      </Text>
+
+      <Text style={styles.description} numberOfLines={2}>
+        Priority {item.priority ?? "null"}
+      </Text>
+
+      <InfoRow label="Category:" value={item.categoryName} />
+      <InfoRow label="Location:" value={item.locationName} />
+      <InfoRow label="Client:" value={item.clientName} />
+
+      <View style={styles.countsRow}>
+        <CountBadge label="Actions" value={item.actionCount} />
+        <CountBadge label="Visits" value={item.visitCount} />
+      </View>
+
+      <View style={styles.cardActions}>
+        <ActionButton
+          label="Edit"
+          onPress={() => onEdit(item)}
+          style={styles.editButton}
+        />
+        <ActionButton
+          label="Delete"
+          onPress={() => onDelete(item.id)}
+          style={styles.deleteButton}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+// Reusable InfoRow
+interface InfoRowProps {
+  label: string;
+  value: string | number;
+}
+const InfoRow: React.FC<InfoRowProps> = ({ label, value }) => (
+  <View style={styles.infoRow}>
+    <Text style={styles.label}>{label}</Text>
+    <Text style={styles.value}>{value}</Text>
+  </View>
+);
+
+// Reusable CountBadge
+interface CountBadgeProps {
+  label: string;
+  value: number;
+}
+const CountBadge: React.FC<CountBadgeProps> = ({ label, value }) => (
+  <View style={styles.countBadge}>
+    <Text style={styles.countLabel}>{label}</Text>
+    <Text style={styles.countValue}>{value}</Text>
+  </View>
+);
+
+// Reusable ActionButton
+interface ActionButtonProps {
+  label: string;
+  onPress: () => void;
+  style?: ViewStyle;
+}
+const ActionButton: React.FC<ActionButtonProps> = ({
+  label,
+  onPress,
+  style,
+}) => (
+  <TouchableOpacity style={[styles.actionButton, style]} onPress={onPress}>
+    <Text style={styles.actionButtonText}>{label}</Text>
+  </TouchableOpacity>
+);
+
+// WorkOrdersList component
+interface WorkOrdersListProps {
+  workOrders: WorkOrder[];
+  handleUpdate: (item: WorkOrder) => void;
+  handleDelete: (id: string) => void;
+}

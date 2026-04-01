@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from "@nozbe/watermelondb";
 
 export default appSchema({
-  version: 1,
+  version: 2,
   tables: [
     tableSchema({
       name: "work_orders",
@@ -37,6 +37,7 @@ export default appSchema({
         { name: "related_work_order_count", type: "number" },
         { name: "documents_count", type: "number" },
         { name: "comment_count", type: "number" },
+        { name: "priority", type: "string", isOptional: true },
       ],
     }),
   ],
